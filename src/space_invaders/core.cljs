@@ -1,4 +1,4 @@
-(ns flappy-bird.core
+(ns space-invaders.core
   (:require [core.async :as a]))
 
 (def columns 12)
