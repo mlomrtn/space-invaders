@@ -1,7 +1,7 @@
 repl:
-	clj --main cljs.main --compile flappy-bird.core --repl
+	clj -m cljs.main --compile space-invaders.core --repl
 
 prod:
-	clj -m cljs.main --optimizations advanced -c flappy-bird.core
+	clj -m cljs.main --optimizations advanced -c space-invaders.core
 
 .PHONEY: repl

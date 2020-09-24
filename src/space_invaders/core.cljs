@@ -1,22 +1,35 @@
 (ns space-invaders.core
-  (:require [core.async :as a]))
+  (:require [clojure.core.async :as a]))
 
 (def columns 12)
 (def rows 12)
 (def col-width 40)
 (def row-height 40)
 
+(def the-stage
+  (-> js/document (.getElementById "space") (.getContext "2d")))
+
 (defn invader [stage row col]
-  (let [x (+ (* col col-width) 20)
-        y (+ (* row row-height) 20)]
+  (let [x (+ 5 (* col col-width))
+        y (* row row-height)
+        tau (* 2 js/Math.PI)]
     (doto stage
+      (set! -fillStyle "#CCFF33")
+      (.fillRect (+ x 5) y 20 5)        ; head
+      (.fillRect x (+ y 5) 30 20)       ; body
+
+      ;; left curve
       (.beginPath)
-      (.arc x y 15 0 (* 2 js/Math.PI) false)
-      (set! -fillStyle "red")
+      (.arc (+ x 5) (+ y 5) 5 0 tau false)
       (.fill)
-      ;; (set! -lineWidth 5)
-      ;; (set! -strokeStyle "#030")
-      (.stroke))))
+
+      ;; right curve
+      (.beginPath)
+      (.arc (+ x 25) (+ y 5) 5 0 tau false)
+      (.fill))
+
+    (doseq [tx (range 0 30 5)]
+(invader the-stage 1 5)
 
 (defn draw-ship [stage row col]
   (let [x (* col col-width)
@@ -54,8 +67,6 @@
   )
 
 (defn keyboard-input [stage ev]
-  
-  
   )
 
 (defn init []
@@ -73,5 +84,3 @@
       (invader stage 1 (inc c)))
 
     (ship stage 12 6)))
-
-(init)
