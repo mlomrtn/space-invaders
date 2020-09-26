@@ -1,23 +1,43 @@
 (ns space-invaders.core
-  (:require [core.async :as a]))
+  (:require [clojure.core.async :as a]))
 
 (def columns 12)
 (def rows 12)
 (def col-width 40)
 (def row-height 40)
 
-(defn invader [stage row col]
-  (let [x (+ (* col col-width) 20)
-        y (+ (* row row-height) 20)]
-    (doto stage
-      (.beginPath)
-      (.arc x y 15 0 (* 2 js/Math.PI) false)
-      (set! -fillStyle "red")
-      (.fill)
-      ;; (set! -lineWidth 5)
-      ;; (set! -strokeStyle "#030")
-      (.stroke))))
+(def the-stage
+  (-> js/document (.getElementById "space") (.getContext "2d")))
 
+(defn invader [stage row col]
+  (let [x (+ 5 (* col col-width))
+        y (+ 5 (* row row-height))
+        tau (* 2 js/Math.PI)]
+    (doto stage
+      (set! -fillStyle "#CCFF33")
+      (.fillRect (+ x 5) y 20 5)        ; head
+      (.fillRect x (+ y 5) 30 15)       ; body
+
+      ;; left curve
+      (.beginPath)
+      (.arc (+ x 5) (+ y 5) 5 0 tau false)
+      (.fill)
+
+      ;; right curve
+      (.beginPath)
+      (.arc (+ x 25) (+ y 5) 5 0 tau false)
+      (.fill))
+
+    (doseq [tx (range 4)]
+      (.fillRect stage
+                 (+ x (* tx 5) tx)
+                 (+ y 20)
+                 5
+                 10))
+
+    ;; last tentacle is off by one, so manually scootch the gap out
+    (.fillRect stage (+ x (* 4 5) 5) (+ y 20) 5 10)))
+      
 (defn draw-ship [stage row col]
   (let [x (* col col-width)
         y (* row row-height)]
@@ -54,8 +74,6 @@
   )
 
 (defn keyboard-input [stage ev]
-  
-  
   )
 
 (defn init []
@@ -73,5 +91,3 @@
       (invader stage 1 (inc c)))
 
     (ship stage 12 6)))
-
-(init)
