@@ -11,12 +11,12 @@
 
 (defn invader [stage row col]
   (let [x (+ 5 (* col col-width))
-        y (* row row-height)
+        y (+ 5 (* row row-height))
         tau (* 2 js/Math.PI)]
     (doto stage
       (set! -fillStyle "#CCFF33")
       (.fillRect (+ x 5) y 20 5)        ; head
-      (.fillRect x (+ y 5) 30 20)       ; body
+      (.fillRect x (+ y 5) 30 15)       ; body
 
       ;; left curve
       (.beginPath)
@@ -28,9 +28,16 @@
       (.arc (+ x 25) (+ y 5) 5 0 tau false)
       (.fill))
 
-    (doseq [tx (range 0 30 5)]
-(invader the-stage 1 5)
+    (doseq [tx (range 4)]
+      (.fillRect stage
+                 (+ x (* tx 5) tx)
+                 (+ y 20)
+                 5
+                 10))
 
+    ;; last tentacle is off by one, so manually scootch the gap out
+    (.fillRect stage (+ x (* 4 5) 5) (+ y 20) 5 10)))
+      
 (defn draw-ship [stage row col]
   (let [x (* col col-width)
         y (* row row-height)]
