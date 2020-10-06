@@ -59,19 +59,44 @@
 
 (defn row-end? [row]
   (and (= (count row)
-          colums)
+          columns)
        (true? (last row))))
 
-(defn row-move [row]
+(defn row-move-right [row]
   (cons false row))
 
-(defn move-invaders [stage fleet]
-  (let [direction +]
-    (a/go-loop []
-      (a/<! (a/timeout 500))
-      )
-    )
-  )
+(defn add-row [fleet]
+  (cons [] fleet))
+
+
+(defn row-move-left [row]
+  (if (empty? row)
+    row
+    (next row)))
+
+
+(defn row-begin? [row]
+  (true? (first row)))
+
+         
+(defn moving-left? [fleet]
+  (odd? (count (take-while empty? fleet))))
+         
+
+(defn move-invaders [fleet]
+  (if (moving-left? fleet)
+    (if (some row-begin? fleet)
+      (add-row fleet)
+      (map row-move-right fleet))    
+    (if (some row-end? fleet)
+      (add-row fleet)
+      (map row-move-left fleet))))
+
+(defn move-invaders! [stage]
+  (a/go-loop [fleet (make-fleet)]
+    (draw-fleet stage fleet)
+    (a/<! (a/timeout 500))
+    (recur (move-invaders fleet))))
 
 (defn keyboard-input [stage ev]
   )
@@ -79,15 +104,14 @@
 (defn init []
   (let [stage (-> js/document
                   (.getElementById "space")
-                  (.getContext "2d"))
-        fleet (map (fn [x]
-                     [1 (inc x)])
-                   (range 11)
-                   )
-        
-        ]
-    
-    (dotimes [c 11]
-      (invader stage 1 (inc c)))
+                  (.getContext "2d"))]
 
-    (ship stage 12 6)))
+    (move-invaders! stage)
+    ;; (ship stage 12 6)
+    ))
+
+(defn tryit []
+  (-> js/document
+      (.getElementById "space")
+      (.getContext "2d")
+      (draw-fleet (make-fleet))))
