@@ -37,7 +37,7 @@
 
     ;; last tentacle is off by one, so manually scootch the gap out
     (.fillRect stage (+ x (* 4 5) 5) (+ y 20) 5 10)))
-      
+
 (defn draw-ship [stage row col]
   (let [x (* col col-width)
         y (* row row-height)]
@@ -59,7 +59,7 @@
 
 (defn row-end? [row]
   (and (= (count row)
-          colums)
+          columns)
        (true? (last row))))
 
 (defn row-move [row]
@@ -84,10 +84,14 @@
                      [1 (inc x)])
                    (range 11)
                    )
-        
+
         ]
-    
+
     (dotimes [c 11]
       (invader stage 1 (inc c)))
 
     (ship stage 12 6)))
+
+(comment
+  (init)
+ )
