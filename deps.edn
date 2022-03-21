@@ -1,2 +1,7 @@
 {:deps {org.clojure/clojurescript {:mvn/version "1.11.4"}
-        org.clojure/core.async {:mvn/version "1.5.648"}}}
+        org.clojure/core.async {:mvn/version "1.5.648"}}
+
+ :aliases
+ {:repl {:exec-fn cljs.main
+         :exec-args {:watch "src"
+                     :compile "space-invaders.core"}}}}
