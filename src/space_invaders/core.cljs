@@ -9,18 +9,22 @@
   )
 
 (defn make-fleet []
-  (mapv (fn [row]
+  {:offset 0
+   :direction :right
+   :invaders
+   (mapv (fn [row]
           (mapv (constantly true)
                 (range (- columns 4))))
-        (range 2)))
+         (range 2))})
 
-(defn draw-fleet [stage fleet]
-  (map-indexed (fn [rown row]
+(defn draw-fleet! [stage draw fleet]
+  (let [{offset direction invaders} fleet]
+    (map-indexed (fn [rown row]
                  (map-indexed (fn [coln alive?]
                                 (when alive?
-                                  (draw/invader stage rown coln)))
+                                  (draw stage offset rown coln)))
                               row))
-               fleet))
+                 invaders)))
 
 (defn row-end? [row]
   (and (= (count row)
@@ -68,23 +72,18 @@
                   (.getContext "2d"))
         fleet (map (fn [x]
                      [1 (inc x)])
-                   (range 11)
-                   )
-
-        ]
+                   (range 11))]
 
     (dotimes [c 11]
       (draw/invader stage 1 (inc c)))))
 
-(defn tryit []
-  (draw-fleet draw/the-stage (make-fleet))
-  )
-
 (comment
   (init)
-  (tryit)
 
-  (let [the-stage draw/the-stage]
-    (draw/erase the-stage 11 5)
-    (draw/ship the-stage 11 5))
+  (draw-fleet draw/the-stage (make-fleet))
+
+  (let [s draw/the-stage]
+    (draw-fleet s (make-fleet))
+    (draw/erase s 11 5)
+    (draw/ship s 11 5))
   )

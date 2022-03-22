@@ -6,8 +6,9 @@
 (def the-stage
   (-> js/document (.getElementById "space") (.getContext "2d")))
 
-(defn invader [stage row col]
+(defn invader [stage offset row col]
   (let [x (+ 5 (* col col-width))
+        x (+ x offset)
         y (+ 5 (* row row-height))
         tau (* 2 js/Math.PI)]
     (set! (. stage -fillStyle) "#CCFF33")
@@ -51,7 +52,7 @@
           (rect (- wing-col-wd) (* 6 wing-row-ht) wing-col-wd wing-row-ht)
           (rect (- (* 2 wing-col-wd)) (* 7 wing-row-ht) (* 2 wing-col-wd) wing-row-ht)
           (rect (- (* 3 wing-col-wd)) (* 8 wing-row-ht) (* 3 wing-col-wd) wing-row-ht))
-
+ 
         right-wing
         (fn []
           (rect col-width (* 6 wing-row-ht) wing-col-wd wing-row-ht)
@@ -66,9 +67,17 @@
     (left-wing)
     (right-wing)))
 
-(defn erase [stage row col]
+#_
+(defn erase [stage offset row col]
   (let [wing-wd (/ col-width 3)
         x (- (* col col-width) wing-wd)
         y (* row row-height)]
     (set! (. stage -fillStyle) "black")
     (.fillRect stage x y (+ col-width (* 2 wing-wd)) row-height)))
+
+(defn erase [stage offset row col]
+  (let [dec (if (= drct :right) dec inc) 
+        x (+ offset (* col col-width))
+        y (* row-height row)]
+    (set! (. stage -fillStyle) "black")
+    (.fillRect stage x y col-width row-height)))

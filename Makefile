@@ -8,4 +8,8 @@ update:
 	clj -X:deps find-versions :lib org.clojure/clojurescript
 	clj -X:deps find-versions :lib org.clojure/core.async
 
-.PHONEY: repl
+clean:
+	rm -rf out
+	rm -f *~ src/space_invaders/*~
+
+.PHONEY: repl prod update clean
