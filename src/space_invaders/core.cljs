@@ -18,7 +18,7 @@
          (range 2))})
 
 (defn draw-fleet! [stage draw fleet]
-  (let [{offset direction invaders} fleet]
+  (let [{:keys [offset direction invaders]} fleet]
     (map-indexed (fn [rown row]
                  (map-indexed (fn [coln alive?]
                                 (when alive?
@@ -31,14 +31,14 @@
           columns)
        (true? (last row))))
 
-(defn row-move-right [row]
+(defn fleet-move-right [row]
   (cons false row))
 
 (defn add-row [fleet]
   (cons [] fleet))
 
 
-(defn row-move-left [row]
+(defn fleet-move-left [row]
   (if (empty? row)
     row
     (next row)))
@@ -49,38 +49,36 @@
 
 
 (defn moving-left? [fleet]
-  (odd? (count (take-while empty? fleet))))
+  false)
 
 (defn move-invaders [fleet]
   (if (moving-left? fleet)
-    (if (some row-begin? fleet)
-      (add-row fleet)
-      (map row-move-right fleet))
-    (if (some row-end? fleet)
-      (add-row fleet)
-      (map row-move-left fleet))))
+    fleet
+    (if true
+      (update fleet :offset inc)
+      (assoc fleet :direction :left))))
+     
+     
 
 (defn move-invaders! [stage]
   (a/go-loop [fleet (make-fleet)]
-    (draw-fleet stage fleet)
-    (a/<! (a/timeout 500))
-    (recur (move-invaders fleet))))
+    (draw-fleet! stage draw/erase fleet)
+    (let [fleet (move-invaders fleet)]
+      (draw-fleet! stage draw/invader fleet)
+      (prn (:offset fleet))
+      (a/<! (a/timeout 500))
+      (recur fleet))))
 
-(defn init []
-  (let [stage (-> js/document
-                  (.getElementById "space")
-                  (.getContext "2d"))
-        fleet (map (fn [x]
-                     [1 (inc x)])
-                   (range 11))]
 
-    (dotimes [c 11]
-      (draw/invader stage 1 (inc c)))))
 
 (comment
-  (init)
 
-  (draw-fleet draw/the-stage (make-fleet))
+  (move-invaders (make-fleet))
+
+  (move-invaders! draw/the-stage)
+
+  (draw-fleet! draw/the-stage draw/invader (make-fleet))
+  (draw-fleet! draw/the-stage draw/erase (make-fleet))  
 
   (let [s draw/the-stage]
     (draw-fleet s (make-fleet))
