@@ -21,6 +21,7 @@
                    ("KeyD" "ArrowRight") :right
                    ("Space") :shoot
                    nil)]
+      (prn 'KEY e)
       (.preventDefault ev)
       (a/put! the-keys e))))
 

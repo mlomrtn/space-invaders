@@ -14,9 +14,6 @@
 (def rows 12)
 (defonce the-stoplight (atom false))
 
-(defn keyboard-input [stage ev]
-  )
-
 (defn make-fleet []
   {:offset 0
    :direction :right
@@ -72,13 +69,29 @@
       (update fleet :offset inc)
       (assoc fleet :direction :left))))
 
-(defn move-invaders!
+(defn advance-fleet
+  [fleet]
+  (->> fleet
+       (draw-fleet! stage draw/erase)
+       (move-invaders)
+       (draw-fleet! stage draw/invader)))
+
+(defn got-command
+  [fleet]
+  fleet)
+
+(defn main-loop!
   [stage]
   (a/go-loop [fleet (make-fleet)]
-    (draw-fleet! stage draw/erase fleet)
-    (let [fleet (move-invaders fleet)]
-      (draw-fleet! stage draw/invader fleet)
-      (a/<! (a/timeout 50))
+
+    (let [fleet
+          (let [event (a/alts! [keys/the-keys (a/timeout 50)])]
+            (cond (nil? event)
+                  (advance-fleet fleet)
+
+                  :else
+                  (got-command fleet event)))]
+
       (when @the-stoplight
         (recur fleet)))))
 
@@ -90,7 +103,9 @@
   (draw-fleet! draw/the-stage draw/erase (make-fleet))
 
   (keys/handle!)
-  (move-invaders! draw/the-stage)
-  (stop!)
   (start!)
+  (main-loop! draw/the-stage)
+
+  (keys/remove!)
+  (stop!)
   )
