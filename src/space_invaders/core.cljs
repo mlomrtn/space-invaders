@@ -1,6 +1,7 @@
 (ns space-invaders.core
   (:require [clojure.core.async :as a]
-            [space-invaders.canvas :as draw]))
+            [space-invaders.canvas :as draw]
+            [space-invaders.keys :as keys]))
 
 ;; Next up
 ;; 1. detect when the fleet is at the right edge of the screen
@@ -88,6 +89,7 @@
   (draw-fleet! draw/the-stage draw/invader (make-fleet))
   (draw-fleet! draw/the-stage draw/erase (make-fleet))
 
+  (keys/handle!)
   (move-invaders! draw/the-stage)
   (stop!)
   (start!)
