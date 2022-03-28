@@ -27,12 +27,13 @@
   (doall
    (map-indexed f coll)))
 
-(defn draw-fleet! [stage draw fleet]
+(defn draw-fleet!
+  [draw fleet]
   (let [{:keys [offset direction invaders]} fleet]
     (for-indexed! (fn [rown row]
                     (for-indexed! (fn [coln alive?]
                                     (if alive?
-                                      (do (draw stage offset rown coln))))
+                                      (do (draw offset rown coln))))
                                   row))
                   invaders))
   fleet)
@@ -72,25 +73,36 @@
 (defn advance-fleet
   [fleet]
   (->> fleet
-       (draw-fleet! stage draw/erase)
+       (draw-fleet! draw/uninvader)
        (move-invaders)
-       (draw-fleet! stage draw/invader)))
+       (draw-fleet! draw/invader)))
 
 (defn got-command
-  [fleet]
+  [fleet event]
   fleet)
 
 (defn main-loop!
-  [stage]
+  []
   (a/go-loop [fleet (make-fleet)]
 
+    (draw-fleet! draw/uninvader fleet)
+
     (let [fleet
-          (let [event (a/alts! [keys/the-keys (a/timeout 50)])]
-            (cond (nil? event)
+          (let [timeout (a/timeout 500)
+                [event ch] (a/alts! [keys/the-keys timeout])]
+
+            (prn 'EVENT
+                 event
+                 (= ch timeout)
+                 (= ch keys/the-keys)
+                 )
+            (cond (= ch timeout)
                   (advance-fleet fleet)
 
                   :else
                   (got-command fleet event)))]
+
+      (draw-fleet! draw/invader fleet)
 
       (when @the-stoplight
         (recur fleet)))))
@@ -99,12 +111,18 @@
 (defn start! [] (swap! the-stoplight (constantly true)))
 
 (comment
-  (draw-fleet! draw/the-stage draw/invader (make-fleet))
-  (draw-fleet! draw/the-stage draw/erase (make-fleet))
+  ;; 1. C-x C-e the next line, it will execute in emacs lisp and start clojure
+  ;; (cider-jack-in-cljs '(:cljs-repl-type browser))
+  ;; 2. Wait for the browser window to open then, C-c C-z to show the repl buffer
+  ;; 3. C-x o to get back to this buffer
+  ;; 4. C-c C-k to load this file
+
+  (draw-fleet! draw/invader (make-fleet))
+  (draw-fleet! draw/uninvader (make-fleet))
 
   (keys/handle!)
   (start!)
-  (main-loop! draw/the-stage)
+  (main-loop!)
 
   (keys/remove!)
   (stop!)

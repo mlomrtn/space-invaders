@@ -2,7 +2,7 @@
   (:require [clojure.core.async :as a]
             [space-invaders.canvas :as draw]))
 
-(defonce the-keys (a/chan 10))
+(defonce the-keys (a/chan))
 
 (def command?
   #{:left
