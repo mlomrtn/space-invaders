@@ -3,13 +3,6 @@
             [space-invaders.canvas :as draw]
             [space-invaders.keys :as keys]))
 
-;; Next up
-;; 1. detect when the fleet is at the right edge of the screen
-;; 2. move left instead of right
-;; 3. dad setup keyboard event listener to put events on a channel
-;; 4. read the keyboard events to move the ship
-;; 5. rename move-invaders! to main-loop! and make it handle the ship too
-
 (def columns 12)
 (def rows 12)
 (defonce the-stoplight (atom false))
