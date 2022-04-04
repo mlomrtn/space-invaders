@@ -85,9 +85,8 @@
   []
   (a/go-loop [fleet (make-fleet)]
 
-    (draw-fleet! draw/uninvader fleet)
-
-    (let [fleet
+    (let [old-fleet fleet
+          fleet
           (let [timeout (a/timeout 500)
                 [event ch] (a/alts! [keys/the-keys timeout])]
 
@@ -102,8 +101,8 @@
                   :else
                   (got-command fleet event)))]
 
+      (draw-fleet! draw/uninvader old-fleet)
       (draw-fleet! draw/invader fleet)
-
       (when @the-stoplight
         (recur fleet)))))
 
