@@ -20,6 +20,27 @@
   (doall
    (map-indexed f coll)))
 
+(defn last-invader [fleet]
+    (->> fleet
+         (:invaders)
+         (map-indexed 
+          (fn [row-index row]
+            (->> row
+                 (map-indexed (fn [index exists]
+                                (if (= exists false)
+                                  nil
+                                  index)))
+                 (filter some?)
+                 (reduce max))))
+         (reduce max)))
+
+(defn edge-of-screen-? [fleet]
+  (->>
+   (* (last-invader fleet) draw/col-width)
+   (+ (:offset fleet))
+   (<= 240)))
+
+
 (defn draw-fleet!
   [draw fleet]
   (let [{:keys [offset direction invaders]} fleet]
@@ -59,9 +80,9 @@
 (defn move-invaders [fleet]
   (if (moving-left? fleet)
     fleet
-    (if true
-      (update fleet :offset inc)
-      (assoc fleet :direction :left))))
+    (if (end-of-screen? fleet)
+      (assoc fleet :direction :left)
+      (update fleet :offset inc))))
 
 (defn advance-fleet
   [fleet]
@@ -115,6 +136,11 @@
   (keys/handle!)
   (start!)
   (main-loop!)
+
+  (map inc
+       [1 2 3])
+  
+  ({1 2 2 3 3 4} 2)
 
   (keys/remove!)
   (stop!)
