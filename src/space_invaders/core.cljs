@@ -75,12 +75,14 @@
 
 
 (defn moving-left? [fleet]
-  false)
+ (= :left (:direction fleet)))
 
 (defn move-invaders [fleet]
   (if (moving-left? fleet)
-    fleet
-    (if (end-of-screen? fleet)
+    (if (begining-of-screen-? fleet)
+      (assoc fleet :direction :right)
+      (update fleet :offset dec))
+    (if (end-of-screen-? fleet)
       (assoc fleet :direction :left)
       (update fleet :offset inc))))
 
@@ -132,6 +134,8 @@
 
   (draw-fleet! draw/invader (make-fleet))
   (draw-fleet! draw/uninvader (make-fleet))
+
+  (draw/ship 11 0)
 
   (keys/handle!)
   (start!)
