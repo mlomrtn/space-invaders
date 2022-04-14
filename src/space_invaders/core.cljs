@@ -150,7 +150,8 @@
     (->> (* (last-invader f) draw/col-width)
          (+ (:offset f)))
     )
-    
+
+  (draw/ship {:x 0 :y 0} 0 0)
     
     
   (keys/handle!)

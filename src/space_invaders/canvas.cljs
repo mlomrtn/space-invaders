@@ -43,34 +43,50 @@
 (defn rect [ox oy x y wd ht]
   (.fillRect *stage* (+ ox x) (+ oy y) wd ht))
 
+(defn square [ox oy size x y color]
+  (set! (. *stage* -fillStyle) color)
+  (.fillRect *stage* (+ ox x) (+ oy y) size size))
+
+(def the-ship-shape
+  (let [b "#2c71d7"
+        w "#ffffff"
+        r "#c63a20"
+        o "#ff6000"
+        y "#f8c823"
+        t "#10698e"
+        k "#000000"
+        c "#2291c8"]
+    [[0 0 0 0 0 b b 0 0 0 0 0]
+     [0 0 0 0 b k t b 0 0 0 0]
+     [0 0 0 b b c t b b 0 0 0]
+     [0 0 0 b w b b w b 0 0 0]
+     [0 0 b r w b b w r b 0 0]
+     [0 0 b r w b b w r b 0 0]
+     [0 b t r w b b w r t b 0]
+     [0 b t r w b b w r t b 0]
+     [b b w w w b b w w w b b]
+     [b b b b b b b b b b b b]
+     [0 0 r o y y y y o r 0 0]
+     [0 0 0 r o y y o r 0 0 0]
+     [0 0 0 0 r r r r 0 0 0 0]]))
+
+(defn for-indexed! [f coll]
+  (doall
+   (map-indexed f coll)))
+
+
 (defn ship*
-  [{body :body wing :wing} row col]
-  (let [x (* col col-width)
-        y (* row row-height)
-        rect (partial rect *stage* x y)
-
-        wing-col-wd (/ col-width 9)
-        wing-row-ht (/ row-height 9)
-
-        left-wing
-        (fn []
-          (rect (- wing-col-wd) (* 6 wing-row-ht) wing-col-wd wing-row-ht)
-          (rect (- (* 2 wing-col-wd)) (* 7 wing-row-ht) (* 2 wing-col-wd) wing-row-ht)
-          (rect (- (* 3 wing-col-wd)) (* 8 wing-row-ht) (* 3 wing-col-wd) wing-row-ht))
-
-        right-wing
-        (fn []
-          (rect col-width (* 6 wing-row-ht) wing-col-wd wing-row-ht)
-          (rect col-width (* 7 wing-row-ht) (* 2 wing-col-wd) wing-row-ht)
-          (rect col-width (* 8 wing-row-ht) (* 3 wing-col-wd) wing-row-ht))]
-
-    (set! (. *stage* -fillStyle) body)
-    (.fillRect *stage* x (+ y 10) 40 30)
-    (.fillRect *stage* (+ x 15) y 10 10)
-
-    (set! (. *stage* -fillStyle) wing)
-    (left-wing)
-    (right-wing)))
-
-(def ship (partial ship* {:body "#66ccff" :wing "white"}))
-(def unship (partial ship* {:body "black" :wing "black"}))
+  [erase-me {x-off :x y-off :y} row col]
+  (let [x (+ x-off (* col col-width))
+        y (+ y-off (* row row-height))
+        square (partial square x y 3)]
+    (for-indexed! (fn [rown row]
+                    (for-indexed! (fn [coln color]
+                                    (square (* coln 3)
+                                            (* rown 3)
+                                            (or erase-me color)))
+                                  row))
+                  the-ship-shape)))
+                    
+(def ship (partial ship* false))
+(def unship (partial ship* "#000000"))
