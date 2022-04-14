@@ -20,7 +20,7 @@
   (doall
    (map-indexed f coll)))
 
-(defn last-invader [fleet]
+(defn xtreme-invader [fleet xtreme]
     (->> fleet
          (:invaders)
          (map-indexed 
@@ -31,15 +31,27 @@
                                   nil
                                   index)))
                  (filter some?)
-                 (reduce max))))
-         (reduce max)))
+                 (reduce xtreme))))
+         (reduce xtreme)))
 
-(defn edge-of-screen-? [fleet]
+(defn last-invader [fleet] (xtreme-invader fleet max))
+(defn first-invader [fleet] (xtreme-invader fleet min))
+
+(defn end-of-screen-? [fleet]
   (->>
-   (* (last-invader fleet) draw/col-width)
+   fleet
+   (last-invader)
+   (inc)
+   (* draw/col-width)
    (+ (:offset fleet))
-   (<= 240)))
+   (<= 480)))
 
+(defn begining-of-screen-? [fleet]
+  (->>
+   fleet
+   (first-invader)
+   (+ (:offset fleet))
+   (>= 0)))
 
 (defn draw-fleet!
   [draw fleet]
@@ -78,6 +90,7 @@
  (= :left (:direction fleet)))
 
 (defn move-invaders [fleet]
+  (prn 'moving fleet)
   (if (moving-left? fleet)
     (if (begining-of-screen-? fleet)
       (assoc fleet :direction :right)
@@ -103,14 +116,8 @@
 
     (let [old-fleet fleet
           fleet
-          (let [timeout (a/timeout 500)
+          (let [timeout (a/timeout 50)
                 [event ch] (a/alts! [keys/the-keys timeout])]
-
-            (prn 'EVENT
-                 event
-                 (= ch timeout)
-                 (= ch keys/the-keys)
-                 )
             (cond (= ch timeout)
                   (advance-fleet fleet)
 
@@ -135,8 +142,17 @@
   (draw-fleet! draw/invader (make-fleet))
   (draw-fleet! draw/uninvader (make-fleet))
 
-  (draw/ship 11 0)
+  ;; (moving-left? (make-fleet))
+  ;; (end-of-screen-? (make-fleet))
 
+  (let [f {:offset 198, :direction :right, :invaders [[true true true true true true true true] [true true true true true true true true]]}]
+
+    (->> (* (last-invader f) draw/col-width)
+         (+ (:offset f)))
+    )
+    
+    
+    
   (keys/handle!)
   (start!)
   (main-loop!)
