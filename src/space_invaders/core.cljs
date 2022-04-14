@@ -11,6 +11,7 @@
   {:offset 0
    :direction :right
    :invaders
+   :vert-offset 0
    (mapv (fn [row]
            (mapv (constantly true)
                  (range (- columns 4))))
@@ -72,8 +73,8 @@
 (defn fleet-move-right [row]
   (cons false row))
 
-(defn add-row [fleet]
-  (cons [] fleet))
+(defn add-row [invaders]
+  (cons [] invaders))
 
 
 (defn fleet-move-left [row]
@@ -91,13 +92,45 @@
 
 (defn move-invaders [fleet]
   (prn 'moving fleet)
-  (if (moving-left? fleet)
+  (case (:direction fleet)
+    (:left)
     (if (begining-of-screen-? fleet)
-      (assoc fleet :direction :right)
+      (-> fleet
+          (assoc :direction :down-right)
+          (assoc :vert-offset 0))
       (update fleet :offset dec))
+
+    (:right)
     (if (end-of-screen-? fleet)
-      (assoc fleet :direction :left)
-      (update fleet :offset inc))))
+      (-> fleet
+          (assoc :direction :down-left)
+          (assoc :vert-offset 0))
+      (update fleet :offset inc))
+
+    (:down-right)
+    (if (>= :vert-offset 30)
+      (->
+       fleet
+       (update :invaders add-row)
+       (assoc :direction :right))
+      (-> fleet
+          (update :vert-offset inc)))
+      
+    (:down-left)
+    (if (>= :vert-offset 30)
+      (->
+       fleet
+       (update :invaders add-row)
+       (assoc :direction :left))
+      (-> fleet
+          (update :vert-offset inc)))))
+
+    
+
+    
+    
+
+    
 
 (defn advance-fleet
   [fleet]
@@ -137,7 +170,7 @@
   ;; (cider-jack-in-cljs '(:cljs-repl-type browser))
   ;; 2. Wait for the browser window to open then, C-c C-z to show the repl buffer
   ;; 3. C-x o to get back to this buffer
-  ;; 4. C-c C-k to load this file
+  ;; 4o. C-c C-k to load this file
 
   (draw-fleet! draw/invader (make-fleet))
   (draw-fleet! draw/uninvader (make-fleet))
