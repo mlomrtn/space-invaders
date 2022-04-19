@@ -8,10 +8,9 @@
 (defonce the-stoplight (atom false))
 
 (defn make-fleet []
-  {:offset 0
+  {:offsets {:x 0 :y 0}
    :direction :right
    :invaders
-   :vert-offset 0
    (mapv (fn [row]
            (mapv (constantly true)
                  (range (- columns 4))))
@@ -44,23 +43,23 @@
    (last-invader)
    (inc)
    (* draw/col-width)
-   (+ (:offset fleet))
+   (+ (:x (:offsets fleet)))
    (<= 480)))
 
 (defn begining-of-screen-? [fleet]
   (->>
    fleet
    (first-invader)
-   (+ (:offset fleet))
+   (+ (:x (:offsets fleet)))
    (>= 0)))
 
 (defn draw-fleet!
   [draw fleet]
-  (let [{:keys [offset direction invaders]} fleet]
+  (let [{:keys [offsets direction invaders]} fleet]
     (for-indexed! (fn [rown row]
                     (for-indexed! (fn [coln alive?]
                                     (if alive?
-                                      (do (draw offset rown coln))))
+                                      (do (draw offsets rown coln))))
                                   row))
                   invaders))
   fleet)
@@ -90,6 +89,17 @@
 (defn moving-left? [fleet]
  (= :left (:direction fleet)))
 
+(defn move-down [fleet next]
+   (if (>= (get-in fleet [:offsets :y]) 20)
+      (->
+       fleet
+       (update :invaders add-row)
+       (assoc :direction next)
+       (assoc-in [:offsets :y] 0))
+      (-> fleet
+          (assoc-in [:offsets :y]  20))))
+   
+
 (defn move-invaders [fleet]
   (prn 'moving fleet)
   (case (:direction fleet)
@@ -97,34 +107,23 @@
     (if (begining-of-screen-? fleet)
       (-> fleet
           (assoc :direction :down-right)
-          (assoc :vert-offset 0))
-      (update fleet :offset dec))
+          (assoc-in [:offsets :y] 0))
+      (update-in fleet [:offsets :x] dec))
 
     (:right)
     (if (end-of-screen-? fleet)
       (-> fleet
           (assoc :direction :down-left)
-          (assoc :vert-offset 0))
-      (update fleet :offset inc))
+          (assoc-in [:offsets :y] 0))
+      (update-in fleet [:offsets :x] inc))
 
     (:down-right)
-    (if (>= :vert-offset 30)
-      (->
-       fleet
-       (update :invaders add-row)
-       (assoc :direction :right))
-      (-> fleet
-          (update :vert-offset inc)))
+    (move-down fleet :right)
       
     (:down-left)
-    (if (>= :vert-offset 30)
-      (->
-       fleet
-       (update :invaders add-row)
-       (assoc :direction :left))
-      (-> fleet
-          (update :vert-offset inc)))))
-
+    (move-down fleet :left)))
+  
+     
     
 
     
@@ -198,4 +197,7 @@
 
   (keys/remove!)
   (stop!)
+
+  (move-down fleet :right)
+  
   )

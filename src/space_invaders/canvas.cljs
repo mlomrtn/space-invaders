@@ -7,10 +7,11 @@
   (-> js/document (.getElementById "space") (.getContext "2d")))
 
 (defn invader*
-  [color offset row col]
+  [color {x-off :x y-off :y} row col]
   (let [x (+ 5 (* col col-width))
-        x (+ x offset)
+        x (+ x x-off)
         y (+ 5 (* row row-height))
+        y (+ y y-off)
         tau (* 2 js/Math.PI)]
     (set! (. *stage* -fillStyle) color)
     (doto *stage*
