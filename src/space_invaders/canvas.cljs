@@ -84,7 +84,10 @@
                     (for-indexed! (fn [coln color]
                                     (square (* coln 3)
                                             (* rown 3)
-                                            (or erase-me color)))
+                                            (or erase-me
+                                                (if (= color 0)
+                                                  "#000000"
+                                                  color))))
                                   row))
                   the-ship-shape)))
                     
