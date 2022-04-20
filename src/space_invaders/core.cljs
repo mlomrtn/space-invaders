@@ -14,7 +14,8 @@
    (mapv (fn [row]
            (mapv (constantly true)
                  (range (- columns 4))))
-         (range 2))})
+         (range 2))
+   :ship {:x 220 :v 0}})
 
 (defn for-indexed! [f coll]
   (doall
@@ -62,8 +63,14 @@
                                       (do (draw offsets rown coln))))
                                   row))
                   invaders))
-  fleet)
+ fleet)
 
+  (defn draw-life! [erase? fleet]
+    (let [invader (if erase? draw/invader draw/uninvader)]
+      (draw-fleet! invader fleet)
+      (draw/ship)))
+    
+    
 (defn row-end? [row]
   (and (= (count row)
           columns)
@@ -183,7 +190,7 @@
          (+ (:offset f)))
     )
 
-  (draw/ship {:x 0 :y 0} 0 0)
+  (draw/ship {:x 0 :y 0} 0 0)   
     
     
   (keys/handle!)
