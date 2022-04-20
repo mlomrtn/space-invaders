@@ -22,18 +22,18 @@
    (map-indexed f coll)))
 
 (defn xtreme-invader [fleet xtreme]
-    (->> fleet
-         (:invaders)
-         (map-indexed 
-          (fn [row-index row]
-            (->> row
-                 (map-indexed (fn [index exists]
-                                (if (= exists false)
-                                  nil
-                                  index)))
-                 (filter some?)
-                 (reduce xtreme))))
-         (reduce xtreme)))
+  (->> fleet
+       (:invaders)
+       (map-indexed
+        (fn [row-index row]
+          (->> row
+               (map-indexed (fn [index exists]
+                              (if (= exists false)
+                                nil
+                                index)))
+               (filter some?)
+               (reduce xtreme))))
+       (reduce xtreme)))
 
 (defn last-invader [fleet] (xtreme-invader fleet max))
 (defn first-invader [fleet] (xtreme-invader fleet min))
@@ -63,15 +63,14 @@
                                       (do (draw offsets rown coln))))
                                   row))
                   invaders))
- fleet)
+  fleet)
 
-  (defn draw-life! [erase? fleet]
-    (let [invader (if erase? draw/invader draw/uninvader)]
-      (draw-fleet! invader fleet)
-      (draw/ship* erase? (:ship fleet))
-      fleet))
-    
-    
+(defn draw-life! [erase? fleet]
+  (let [invader (if erase? draw/uninvader draw/invader)]
+    (draw-fleet! invader fleet)
+    (draw/ship* erase? (:ship fleet))
+    fleet))
+
 (defn row-end? [row]
   (and (= (count row)
           columns)
@@ -95,18 +94,18 @@
 
 
 (defn moving-left? [fleet]
- (= :left (:direction fleet)))
+  (= :left (:direction fleet)))
 
 (defn move-down [fleet next]
-   (if (>= (get-in fleet [:offsets :y]) 20)
-      (->
-       fleet
-       (update :invaders add-row)
-       (assoc :direction next)
-       (assoc-in [:offsets :y] 0))
-      (-> fleet
-          (assoc-in [:offsets :y]  20))))
-   
+  (if (>= (get-in fleet [:offsets :y]) 20)
+    (->
+     fleet
+     (update :invaders add-row)
+     (assoc :direction next)
+     (assoc-in [:offsets :y] 0))
+    (-> fleet
+        (assoc-in [:offsets :y]  20))))
+
 
 (defn move-invaders [fleet]
   (prn 'moving fleet)
@@ -127,17 +126,17 @@
 
     (:down-right)
     (move-down fleet :right)
-      
+
     (:down-left)
     (move-down fleet :left)))
-  
-     
-    
 
-    
-    
 
-    
+
+
+
+
+
+
 
 (defn advance-fleet
   [fleet]
@@ -191,21 +190,21 @@
          (+ (:offset f)))
     )
 
-  (draw/ship {:x 0 :y 0} 0 0)   
-    
-    
+  (draw/ship {:x 0 :y 0} 0 0)
+
+
   (keys/handle!)
   (start!)
   (main-loop!)
 
   (map inc
        [1 2 3])
-  
+
   ({1 2 2 3 3 4} 2)
 
   (keys/remove!)
   (stop!)
 
   (move-down fleet :right)
-  
+
   )
