@@ -68,7 +68,8 @@
   (defn draw-life! [erase? fleet]
     (let [invader (if erase? draw/invader draw/uninvader)]
       (draw-fleet! invader fleet)
-      (draw/ship)))
+      (draw/ship* erase? (:ship fleet))
+      fleet))
     
     
 (defn row-end? [row]
@@ -141,9 +142,9 @@
 (defn advance-fleet
   [fleet]
   (->> fleet
-       (draw-fleet! draw/uninvader)
+       (draw-life! true)
        (move-invaders)
-       (draw-fleet! draw/invader)))
+       (draw-life! false)))
 
 (defn got-command
   [fleet event]
@@ -158,13 +159,13 @@
           (let [timeout (a/timeout 50)
                 [event ch] (a/alts! [keys/the-keys timeout])]
             (cond (= ch timeout)
-                  (advance-fleet fleet)
+                  (move-invaders fleet)
 
                   :else
                   (got-command fleet event)))]
 
-      (draw-fleet! draw/uninvader old-fleet)
-      (draw-fleet! draw/invader fleet)
+      (draw-life! true old-fleet)
+      (draw-life! false fleet)
       (when @the-stoplight
         (recur fleet)))))
 

@@ -77,9 +77,10 @@
 
 
 (defn ship*
-  [erase-me {x-off :x y-off :y} row col]
-  (let [x (+ x-off (* col col-width))
-        y (+ y-off (* row row-height))
+  [erase-me {x-off :x}]
+  (let [erase-me (if (true? erase-me) "#000000" false)
+        x  x-off 
+        y 0
         square (partial square x y 3)]
     (for-indexed! (fn [rown row]
                     (for-indexed! (fn [coln color]
