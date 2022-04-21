@@ -75,12 +75,15 @@
   (doall
    (map-indexed f coll)))
 
+(def ship-tall (* 13 3))
+(def canvas-butt 480)
+(def the-ship-posish (- canvas-butt ship-tall))
 
 (defn ship*
   [erase-me {x-off :x}]
   (let [erase-me (if (true? erase-me) "#000000" false)
-        x  x-off 
-        y 0
+        x x-off 
+        y the-ship-posish
         square (partial square x y 3)]
     (for-indexed! (fn [rown row]
                     (for-indexed! (fn [coln color]
@@ -95,3 +98,9 @@
                     
 (def ship (partial ship* false))
 (def unship (partial ship* "#000000"))
+
+
+(defn Thanos-snap []
+      (set! (. *stage* -fillStyle) "#000000")
+    (doto *stage*
+      (.fillRect 0 0 480 480)))      

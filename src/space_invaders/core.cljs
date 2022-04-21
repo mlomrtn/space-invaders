@@ -106,6 +106,9 @@
     (-> fleet
         (assoc-in [:offsets :y]  20))))
 
+(defn v-move [fleet]
+  (let [{{v :v x :x} :ship} fleet]
+    (assoc-in fleet [:ship :x] (+ x v))))
 
 (defn move-invaders [fleet]
   (prn 'moving fleet)
@@ -130,27 +133,19 @@
     (:down-left)
     (move-down fleet :left)))
 
+(def move-life (comp move-invaders v-move))
 
+(defn got-command [fleet event]
+  (case event
+    (:left)
+    (update-in fleet [:ship :v] dec)
 
-
-
-
-
-
-
-(defn advance-fleet
-  [fleet]
-  (->> fleet
-       (draw-life! true)
-       (move-invaders)
-       (draw-life! false)))
-
-(defn got-command
-  [fleet event]
-  fleet)
+    (:right)
+    (update-in fleet [:ship :v] inc)))
 
 (defn main-loop!
   []
+  (draw/Thanos-snap)
   (a/go-loop [fleet (make-fleet)]
 
     (let [old-fleet fleet
@@ -158,7 +153,7 @@
           (let [timeout (a/timeout 50)
                 [event ch] (a/alts! [keys/the-keys timeout])]
             (cond (= ch timeout)
-                  (move-invaders fleet)
+                  (move-life fleet)
 
                   :else
                   (got-command fleet event)))]
@@ -184,14 +179,7 @@
   ;; (moving-left? (make-fleet))
   ;; (end-of-screen-? (make-fleet))
 
-  (let [f {:offset 198, :direction :right, :invaders [[true true true true true true true true] [true true true true true true true true]]}]
-
-    (->> (* (last-invader f) draw/col-width)
-         (+ (:offset f)))
-    )
-
-  (draw/ship {:x 0 :y 0} 0 0)
-
+  
 
   (keys/handle!)
   (start!)
