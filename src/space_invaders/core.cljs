@@ -107,8 +107,16 @@
         (assoc-in [:offsets :y]  20))))
 
 (defn v-move [fleet]
-  (let [{{v :v x :x} :ship} fleet]
-    (assoc-in fleet [:ship :x] (+ x v))))
+  (let [{{v :v x :x} :ship} fleet
+
+        x (-> (+ x v) (min draw/the-ship-posish) (max 0))
+
+        v (if (or (= x 0) (= x draw/the-ship-posish))
+            0
+            v)]
+    (-> fleet
+        (assoc-in [:ship :x] x )
+        (assoc-in [:ship :v] v ))))
 
 (defn move-invaders [fleet]
   (prn 'moving fleet)
