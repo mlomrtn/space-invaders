@@ -15,7 +15,8 @@
            (mapv (constantly true)
                  (range (- columns 4))))
          (range 2))
-   :ship {:x 220 :v 0}})
+   :ship {:x 220 :v 0}
+   :bullet nil})
 
 (defn for-indexed! [f coll]
   (doall
@@ -69,6 +70,8 @@
   (let [invader (if erase? draw/uninvader draw/invader)]
     (draw-fleet! invader fleet)
     (draw/ship* erase? (:ship fleet))
+    (when-let [bullet (:bullet fleet)]
+      (draw/ship-bullet erase? bullet))
     fleet))
 
 (defn row-end? [row]
@@ -118,6 +121,18 @@
         (assoc-in [:ship :x] x )
         (assoc-in [:ship :v] v ))))
 
+(defn incn [n]
+  (fn [x]
+    (+ n x)))
+
+(defn bullet-move [fleet]
+  (let [bullet (:bullet fleet)]
+    (if (not bullet)
+      fleet
+      (if (> (:y bullet) 480)
+        (assoc-in fleet [:bullet] nil)
+        (update-in fleet [:bullet :y] (incn 2))))))
+
 (defn move-invaders [fleet]
   (prn 'moving fleet)
   (case (:direction fleet)
@@ -141,7 +156,7 @@
     (:down-left)
     (move-down fleet :left)))
 
-(def move-life (comp move-invaders v-move))
+(def move-life (comp move-invaders v-move bullet-move))
 
 (defn got-command [fleet event]
   (case event
@@ -149,7 +164,13 @@
     (update-in fleet [:ship :v] dec)
 
     (:right)
-    (update-in fleet [:ship :v] inc)))
+    (update-in fleet [:ship :v] inc)
+
+    (:space :up)
+    (if (not (:bullet fleet))
+      (assoc-in fleet [:bullet] (:ship fleet))
+      fleet)
+    fleet))
 
 (defn main-loop!
   []

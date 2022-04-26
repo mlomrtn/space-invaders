@@ -104,3 +104,12 @@
       (set! (. *stage* -fillStyle) "#000000")
     (doto *stage*
       (.fillRect 0 0 480 480)))      
+
+(defn ship-bullet
+  [erase-me {x :x y :y}]
+  (let [color  (if erase-me "#000000" "#ffffff")
+        square (partial square x y 3)]
+    (square x (+ y 3))
+    (square x y)))
+    
+ 
