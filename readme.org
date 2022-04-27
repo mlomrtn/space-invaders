@@ -1,0 +1,63 @@
+* Emacs Cheatsheet
+
+| M-x command          | Key     |
+|----------------------+---------|
+| find-file            | C-x C-f |
+| save-buffer          | C-x C-s |
+| save-some-buffers    | C-x s   |
+|----------------------+---------|
+| quit                 | C-g     |
+| beginning-of-line    | C-a     |
+| end-of-line          | C-e     |
+| beginning-of-sexp    | C-M-a   |
+| end-of-sexp          | C-M-e   |
+| kill-line            | C-k     |
+| kill-sexp            | C-M-k   |
+| yank                 | C-y     |
+| yank-pop             | M-y     |
+|----------------------+---------|
+| cider-jack-in-cljs   |         |
+| cider-load-file      | C-c C-k |
+| cider-quit           | C-c C-q |
+| cider-eval-last-sexp | C-c C-e |
+
+* Next up
+
+1. bullets
+   - [ ] shooting breaks the fleet changing, so fix that
+   - [X] +firing a bullet accelerates the ship down+
+
+2. explosions
+   - [ ] add state to fleet for explosions
+   - [ ] explosion x, y, frame
+   - [ ] add draw function for each frame centered on x and y
+   - [ ] lore is that invaders are capturing stars, so explosion
+         releases a star, which maybe stays in place?
+** Bugs
+
+- [ ] curved part at the top of the invader leaves behind streaks,
+  erasing needs to not curve that part. Try just erasing the whole
+  stage on each frame?
+  - [ ] probably just pass ~erase?~ to invader
+
+- [ ] rename ~fleet~ -> ~life~ or ~stage~
+- [ ] rename ~draw/ship*~
+- [ ] rename ~draw/~ -> ~canvas/~
+
+** Done
+
+1. detect when the fleet is at the right edge of the screen
+   - [x] find column position of the extrememots invader
+   - [x] multiply by column width + offset
+   - [x] xtreme-invader can use `max` or `min` to find first or last
+
+2. move left as well as right
+   - [x] one additional frame for down-right
+
+3. read the keyboard events to move the ship
+   - keyboard events are published on the channel already
+   - [X] store extra state in the fleet to represent the ship's position
+     and direction
+   - [X] arrows apply acceleration, inertia is real
+   - [X] match keyboard commands and call a function to update the ship
+     direction
