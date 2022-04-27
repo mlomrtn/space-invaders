@@ -121,17 +121,17 @@
         (assoc-in [:ship :x] x )
         (assoc-in [:ship :v] v ))))
 
-(defn incn [n]
+(defn decn [n]
   (fn [x]
-    (+ n x)))
+    (- x n)))
 
 (defn bullet-move [fleet]
   (let [bullet (:bullet fleet)]
     (if (not bullet)
       fleet
-      (if (> (:y bullet) 480)
+      (if (<= (:y bullet) 0)
         (assoc-in fleet [:bullet] nil)
-        (update-in fleet [:bullet :y] (incn 2))))))
+        (update-in fleet [:bullet :y] (decn 2))))))
 
 (defn move-invaders [fleet]
   (prn 'moving fleet)
@@ -158,6 +158,10 @@
 
 (def move-life (comp move-invaders v-move bullet-move))
 
+(defn new-bullet [fleet]
+  {:x (get-in fleet [:ship :x])
+   :y draw/the-ship-posish})
+
 (defn got-command [fleet event]
   (case event
     (:left)
@@ -166,9 +170,9 @@
     (:right)
     (update-in fleet [:ship :v] inc)
 
-    (:space :up)
+    (:shoot :up)
     (if (not (:bullet fleet))
-      (assoc-in fleet [:bullet] (:ship fleet))
+      (assoc-in fleet [:bullet] (new-bullet fleet))
       fleet)
     fleet))
 

@@ -109,7 +109,8 @@
   [erase-me {x :x y :y}]
   (let [color  (if erase-me "#000000" "#ffffff")
         square (partial square x y 3)]
-    (square x (+ y 3))
-    (square x y)))
+    (prn 'ship x y color)
+    (square 0 3 color)
+    (square 0 0 color)))
     
  
