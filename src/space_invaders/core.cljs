@@ -177,6 +177,17 @@
     (:down-left)
     (move-down fleet :left)))
 
+(defn invader-at? [fleet x y]
+  (let [{:keys [offsets invaders]} fleet]
+    (
+    
+
+(defn boom-teller [{:keys [bullet invaders] :as fleet}]
+  (let [{:keys [x y]}]
+    (if (invader-at? fleet x y)
+      (assoc-in fleet [:boom]  
+  
+
 (def move-life (comp move-invaders v-move bullet-move))
 
 (defn new-bullet [fleet]
@@ -210,7 +221,7 @@
                   (move-life fleet)
 
                   :else
-                  (got-command fleet event)))]
+                   (got-command fleet event)))]
 
       (draw-life! true old-fleet)
       (draw-life! false fleet)
