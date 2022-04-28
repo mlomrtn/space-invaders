@@ -22,6 +22,27 @@
   (doall
    (map-indexed f coll)))
 
+(defn map-invaders [fleet function]
+  (->> fleet
+       (:invaders)
+       (for-indexed!
+        (fn [row-index row]
+          (for-indexed!
+           row
+           (fn [col-index invader-at]
+             (function row-index col-index invader-at)))))))
+
+(defn [fleet x y]
+  (->> fleet
+       (map-invaders
+        (fn [rown coln invader-at]
+          (when invader-at
+            (and (> x (+ (:x offsets) (* coln 40) 5))
+                 (< x (+ (:x offsets) (* coln 40) 30))
+                 (> y (+ (:y offsets) (* rown 40) 5))
+                 (< y (+ (:y offsets) (* rown 40) 30))))))
+       ))
+
 (defn xtreme-invader [fleet xtreme]
   (->> fleet
        (:invaders)
@@ -212,7 +233,7 @@
   ;; (moving-left? (make-fleet))
   ;; (end-of-screen-? (make-fleet))
 
-  
+
 
   (keys/handle!)
   (start!)
