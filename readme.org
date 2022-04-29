@@ -5,6 +5,7 @@
 | find-file            | C-x C-f |
 | save-buffer          | C-x C-s |
 | save-some-buffers    | C-x s   |
+| switch-buffer        | C-x b   |
 |----------------------+---------|
 | quit                 | C-g     |
 | beginning-of-line    | C-a     |
@@ -23,11 +24,9 @@
 
 * Next up
 
-1. bullets
-   - [ ] shooting breaks the fleet changing, so fix that
-   - [X] +firing a bullet accelerates the ship down+
-
-2. explosions
+1. explosions
+   - [ ] ~bullet-touching?~ so we know if we've intersected a ship and
+     should blow it up
    - [ ] add state to fleet for explosions
    - [ ] explosion x, y, frame
    - [ ] add draw function for each frame centered on x and y
@@ -61,3 +60,9 @@
    - [X] arrows apply acceleration, inertia is real
    - [X] match keyboard commands and call a function to update the ship
      direction
+
+4. bullets
+   - [X] shooting breaks the fleet changing, so fix that
+   - [X] ~square~ origin x y, adds x and y, so don't do it twice
+   - [X] y 0 is the top of the stage
+   - [X] +firing a bullet accelerates the ship down+
