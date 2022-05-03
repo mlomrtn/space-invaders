@@ -22,7 +22,7 @@
   (doall
    (map-indexed f coll)))
 
-(defn map-invaders [fleet function]
+(defn map-invaders [function fleet]
   (->> fleet
        (:invaders)
        (for-indexed!
@@ -32,7 +32,7 @@
            (fn [col-index invader-at]
              (function row-index col-index invader-at)))))))
 
-(defn [fleet x y]
+(defn rown-coln-boommed-invader[fleet x y]
   (->> fleet
        (map-invaders
         (fn [rown coln invader-at]
@@ -177,16 +177,40 @@
     (:down-left)
     (move-down fleet :left)))
 
+(defn col-range [fleet coln]
+  [(-> fleet (:offsets) (:x) (+ (* coln draw/col-width)))
+   (-> fleet (:offsets) (:x) (+ (* (+ coln 1) draw/col-width)))])
+
+(defn row-range [fleet rown]
+  [(-> fleet (:offsets) (:y) (+ (* rown draw/row-height)))
+   (-> fleet (:offsets) (:y) (+ (* (+ rown 1) draw/row-hieght)))])
+
+  
 (defn invader-at? [fleet x y]
   (let [{:keys [offsets invaders]} fleet]
-    (
+    (->>
+     fleet
+     (map-invaders 
+      (fn [rown coln invader-at]
+        (when invader-at?
+          (and (let [[strt nd] (col-range fleet coln)]
+                 (< strt (-> fleet (:bullet) (:x)) nd))
+               (let [[strt nd] (row-range fleet rown)]
+                 (< strt (-> fleet (:bullet) (:y)) nd))
+               [rown coln]))))
+     (flatten)
+     (filter vector?)
+     (not-empty))))
+                  
+                               
+
+                       
     
 
 (defn boom-teller [{:keys [bullet invaders] :as fleet}]
-  (let [{:keys [x y]}]
-    (if (invader-at? fleet x y)
-      (assoc-in fleet [:boom]  
-  
+  (let [{:keys [x y]} bullet]
+    (when-let [[rown coln] (invader-at? fleet)]
+      (assoc-in fleet [:esposion] {:x x :y y :boom-level 1})))) 
 
 (def move-life (comp move-invaders v-move bullet-move))
 
