@@ -2,10 +2,13 @@
 
 ;;; Fix the indentation so that this expression is readable:
 (= 94
-   (/ (+ (* 2 3) (* 3 90) (+ 1 2 3)) 3))
+   (/ (+ (* 2 3)
+         (* 3 90)
+         (+ 1 2 3))
+      3))
 
 ;;; Make the map in the let binding that makes the test return true:
-(let []
+(let [one-2]
   (and (= 1 (:a one-2))
        (= 2 (:b one-2))
        (= 3 (:c one-2))))
