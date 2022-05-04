@@ -112,5 +112,18 @@
     (prn 'ship x y color)
     (square 0 3 color)
     (square 0 0 color)))
+
+(def boom-color { :orange "#ff6000"
+                  :yellow "#f8c823" 
+                  :white  "#ffffff"})
+  
+(defn boom
+  [erase-me x y
+   stage-me]
+  (let [color  (if erase-me "#000000" "#ffffff")
+        square (partial square x y 3)]
+    (case stage-me
+      1 (do)
+      2 (do)
+      3 (do)))) 
     
- 
