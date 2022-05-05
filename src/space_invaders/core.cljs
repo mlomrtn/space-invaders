@@ -33,15 +33,15 @@
              (function row-index col-index invader-at)))))))
 
 (defn rown-coln-boommed-invader[fleet x y]
-  (->> fleet
-       (map-invaders
-        (fn [rown coln invader-at]
-          (when invader-at
-            (and (> x (+ (:x offsets) (* coln 40) 5))
-                 (< x (+ (:x offsets) (* coln 40) 30))
-                 (> y (+ (:y offsets) (* rown 40) 5))
-                 (< y (+ (:y offsets) (* rown 40) 30))))))
-       ))
+  (let [offsets (:offsets fleet)]
+    (->> fleet
+         (map-invaders
+          (fn [rown coln invader-at]
+            (when invader-at
+              (and (> x (+ (:x offsets) (* coln 40) 5))
+                   (< x (+ (:x offsets) (* coln 40) 30))
+                   (> y (+ (:y offsets) (* rown 40) 5))
+                   (< y (+ (:y offsets) (* rown 40) 30)))))))))
 
 (defn xtreme-invader [fleet xtreme]
   (->> fleet
@@ -93,6 +93,8 @@
     (draw/ship* erase? (:ship fleet))
     (when-let [bullet (:bullet fleet)]
       (draw/ship-bullet erase? bullet))
+    (when-let [esposion (:esposion fleet)]
+      (draw/boom erase? esposion (:offsets fleet)))
     fleet))
 
 (defn row-end? [row]
@@ -183,10 +185,10 @@
 
 (defn row-range [fleet rown]
   [(-> fleet (:offsets) (:y) (+ (* rown draw/row-height)))
-   (-> fleet (:offsets) (:y) (+ (* (+ rown 1) draw/row-hieght)))])
+   (-> fleet (:offsets) (:y) (+ (* (+ rown 1) draw/row-height)))])
 
   
-(defn invader-at? [fleet x y]
+(defn invader-at? [fleet]
   (let [{:keys [offsets invaders]} fleet]
     (->>
      fleet
@@ -209,15 +211,19 @@
 
 (defn boom-teller [{:keys [bullet invaders] :as fleet}]
   (let [{:keys [x y]} bullet]
-    (when-let [[rown coln] (invader-at? fleet)]
-      (assoc-in fleet [:esposion] {:x x :y y :boom-level 1})))) 
+    (or (when-let [[rown coln] (invader-at? fleet)]
+          (-> fleet
+              (assoc-in [:esposion]  {:rown rown :coln coln :boom-level 1})
+              (assoc-in [:invaders rown coln] false)))
+        fleet)))
 
 (defn big-boom [fleet]
-  (when-let [ex (:esposion fleet)]
-    (if (= (stage :x) 3)
-      (dissoc fleet :esposion)
-      (update-in fleet [:esposion :boom-level] inc))))
-       
+  (or (when-let [ex (:esposion fleet)]
+        (if (= ((:boom-level ex) :x) 3)
+          (dissoc fleet :esposion)
+          (update-in fleet [:esposion :boom-level] inc)))
+      fleet))
+  
 (def move-life (comp move-invaders v-move bullet-move big-boom))
 
 (defn new-bullet [fleet]
@@ -287,6 +293,8 @@
 
   (keys/remove!)
   (stop!)
+
+  (draw/Thanos-snap)
 
   (move-down fleet :right)
 

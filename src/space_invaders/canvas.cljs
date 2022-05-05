@@ -2,17 +2,21 @@
 
 (def col-width 40)
 (def row-height 40)
+(def tau (* 2 js/Math.PI))
 
 (def ^:dynamic *stage*
   (-> js/document (.getElementById "space") (.getContext "2d")))
 
-(defn invader*
-  [color {x-off :x y-off :y} row col]
-  (let [x (+ 5 (* col col-width))
-        x (+ x x-off)
-        y (+ 5 (* row row-height))
-        y (+ y y-off)
-        tau (* 2 js/Math.PI)]
+(defn rown-coln-x-y [rown coln offsets]
+ (let [x (+ 5 (* coln col-width))
+        x (+ x (:x offsets))
+        y (+ 5 (* rown row-height))
+       y (+ y (:y offsets))]
+   [x y]))
+
+(defn invader* [color offsets row col]
+  (let [[x y] (rown-coln-x-y row col offsets)]
+           
     (set! (. *stage* -fillStyle) color)
     (doto *stage*
       (.fillRect (+ x 5) y 20 5)        ; head
@@ -115,15 +119,40 @@
 
 (def boom-color { :orange "#ff6000"
                   :yellow "#f8c823" 
-                  :white  "#ffffff"})
-  
+                 :white  "#ffffff"})
+
 (defn boom
-  [erase-me x y
-   stage-me]
-  (let [color  (if erase-me "#000000" "#ffffff")
+  [erase-me {:keys [rown coln] stage-me :boom-level} offsets]
+  (let [[x y] (rown-coln-x-y rown coln offsets)
+        [x y] [(+ x 20) (+ y 20)]
+        color  (if erase-me (constantly "#000000") boom-color)
         square (partial square x y 3)]
     (case stage-me
-      1 (do)
-      2 (do)
-      3 (do)))) 
+      1 (do (square 0 0 (color :white)))
+      2 (do (square 0 0 (color :yellow))
+            (square -3 -3 (color :white))
+            (square 3 -3 (color :white))
+            (square 3 3 (color :white))
+            (square 3 -3 (color :white)))
+      3 (do (square 0 0 (color :orange))
+            (square -3 -3 (color :yellow))
+            (square 3 -3 (color :yellow))
+            (square 3 3 (color :yellow))
+            (square 3 -3 (color :yellow))
+            (square 0 -3 (color :yellow))
+            (square 0 3 (color :yellow))
+            (square 3 0 (color :yellow))
+            (square -3 0 (color :yellow))
+            (doseq [[x y] [[9 9]
+                           [-9 -9]
+                           [9 -9]
+                           [-9 9]
+                           [6 6]
+                           [-6 -6]
+                           [6 -6]
+                           [-6 6]]]
+              (square x y (color :white)))))))
+
+
+            
     
