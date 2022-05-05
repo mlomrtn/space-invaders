@@ -28,9 +28,9 @@
        (for-indexed!
         (fn [row-index row]
           (for-indexed!
-           row
            (fn [col-index invader-at]
-             (function row-index col-index invader-at)))))))
+             (function row-index col-index invader-at))
+           row)))))
 
 (defn rown-coln-boommed-invader[fleet x y]
   (let [offsets (:offsets fleet)]
@@ -81,7 +81,7 @@
   (let [{:keys [offsets direction invaders]} fleet]
     (for-indexed! (fn [rown row]
                     (for-indexed! (fn [coln alive?]
-                                    (if alive?
+                                    (when alive?
                                       (do (draw offsets rown coln))))
                                   row))
                   invaders))
@@ -106,8 +106,7 @@
   (cons false row))
 
 (defn add-row [invaders]
-  (cons [] invaders))
-
+  (into [[]] invaders))
 
 (defn fleet-move-left [row]
   (if (empty? row)
@@ -187,44 +186,41 @@
   [(-> fleet (:offsets) (:y) (+ (* rown draw/row-height)))
    (-> fleet (:offsets) (:y) (+ (* (+ rown 1) draw/row-height)))])
 
-  
+
 (defn invader-at? [fleet]
   (let [{:keys [offsets invaders]} fleet]
-    (->>
-     fleet
-     (map-invaders 
-      (fn [rown coln invader-at]
-        (when invader-at?
-          (and (let [[strt nd] (col-range fleet coln)]
-                 (< strt (-> fleet (:bullet) (:x)) nd))
-               (let [[strt nd] (row-range fleet rown)]
-                 (< strt (-> fleet (:bullet) (:y)) nd))
-               [rown coln]))))
-     (flatten)
-     (filter vector?)
-     (not-empty))))
-                  
-                               
-
-                       
-    
+    (->> fleet
+         (map-invaders
+          (fn [rown coln invader-at]
+            (and invader-at
+                 (let [[strt nd] (col-range fleet coln)]
+                   (< strt (-> fleet (:bullet) (:x)) nd))
+                 (let [[strt nd] (row-range fleet rown)]
+                   (< strt (-> fleet (:bullet) (:y)) nd))
+                 [rown coln])))
+         (map (fn [row] (filter vector? row)))
+         (filter not-empty)
+         (ffirst))))
 
 (defn boom-teller [{:keys [bullet invaders] :as fleet}]
   (let [{:keys [x y]} bullet]
     (or (when-let [[rown coln] (invader-at? fleet)]
           (-> fleet
-              (assoc-in [:esposion]  {:rown rown :coln coln :boom-level 1})
-              (assoc-in [:invaders rown coln] false)))
+              (assoc-in [:esposion] {:rown rown :coln coln :boom-level 1})
+              (assoc-in [:invaders rown coln] false)
+              (dissoc :bullet)
+              ((fn [x] (prn 'TELLER x) x))
+              ))
         fleet)))
 
 (defn big-boom [fleet]
   (or (when-let [ex (:esposion fleet)]
-        (if (= ((:boom-level ex) :x) 3)
+        (if (= (:boom-level ex) 3)
           (dissoc fleet :esposion)
           (update-in fleet [:esposion :boom-level] inc)))
       fleet))
-  
-(def move-life (comp move-invaders v-move bullet-move big-boom))
+
+(def move-life (comp move-invaders v-move bullet-move big-boom boom-teller))
 
 (defn new-bullet [fleet]
   {:x (get-in fleet [:ship :x])
@@ -257,7 +253,7 @@
                   (move-life fleet)
 
                   :else
-                   (got-command fleet event)))]
+                  (got-command fleet event)))]
 
       (draw-life! true old-fleet)
       (draw-life! false fleet)
@@ -274,28 +270,29 @@
   ;; 3. C-x o to get back to this buffer
   ;; 4o. C-c C-k to load this file
 
-  (draw-fleet! draw/invader (make-fleet))
-  (draw-fleet! draw/uninvader (make-fleet))
 
-  ;; (moving-left? (make-fleet))
-  ;; (end-of-screen-? (make-fleet))
-
-
-
+  ;; Do this once, and only remove/re-add the handler if you change the handler
   (keys/handle!)
+  (keys/remove!)
+
+  ;; Do this every time
   (start!)
   (main-loop!)
-
-  (map inc
-       [1 2 3])
-
-  ({1 2 2 3 3 4} 2)
-
-  (keys/remove!)
   (stop!)
 
+  ;; Clear the screen
   (draw/Thanos-snap)
 
-  (move-down fleet :right)
+  (invader-at? {:invaders [[true true] [true true]]
+                :offsets {:x 1 :y 0}
+                :bullet {:x 20 :y 20}})
 
+  (-> {:invaders [[true true] [true true]]
+       :offsets {:x 1 :y 0}
+       :bullet {:x 20 :y 20}}
+      (boom-teller)
+      ;; (big-boom)
+      ;; (big-boom)
+      ;; (big-boom)
+      )
   )
