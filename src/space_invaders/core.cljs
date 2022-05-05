@@ -212,7 +212,13 @@
     (when-let [[rown coln] (invader-at? fleet)]
       (assoc-in fleet [:esposion] {:x x :y y :boom-level 1})))) 
 
-(def move-life (comp move-invaders v-move bullet-move))
+(defn big-boom [fleet]
+  (when-let [ex (:esposion fleet)]
+    (if (= (stage :x) 3)
+      (dissoc fleet :esposion)
+      (update-in fleet [:esposion :boom-level] inc))))
+       
+(def move-life (comp move-invaders v-move bullet-move big-boom))
 
 (defn new-bullet [fleet]
   {:x (get-in fleet [:ship :x])
