@@ -153,7 +153,7 @@
       fleet
       (if (<= (:y bullet) 0)
         (assoc-in fleet [:bullet] nil)
-        (update-in fleet [:bullet :y] (decn 2))))))
+        (update-in fleet [:bullet :y] (decn 5))))))
 
 (defn move-invaders [fleet]
   (prn 'moving fleet)
@@ -186,32 +186,34 @@
   [(-> fleet (:offsets) (:y) (+ (* rown draw/row-height)))
    (-> fleet (:offsets) (:y) (+ (* (+ rown 1) draw/row-height)))])
 
+(defn invader-at [fleet x y]
+  (let [{:keys [offsets invaders]} fleet
+        {ox :x oy :y} offsets
+        coln (-> x (- ox) (quot draw/col-width))
+        rown (-> y (- oy) (quot draw/row-height))]
+    (and (true? (get-in invaders [rown coln]))
+         [rown coln])))
 
-(defn invader-at? [fleet]
-  (let [{:keys [offsets invaders]} fleet]
-    (->> fleet
-         (map-invaders
-          (fn [rown coln invader-at]
-            (and invader-at
-                 (let [[strt nd] (col-range fleet coln)]
-                   (< strt (-> fleet (:bullet) (:x)) nd))
-                 (let [[strt nd] (row-range fleet rown)]
-                   (< strt (-> fleet (:bullet) (:y)) nd))
-                 [rown coln])))
-         (map (fn [row] (filter vector? row)))
-         (filter not-empty)
-         (ffirst))))
-
-(defn boom-teller [{:keys [bullet invaders] :as fleet}]
+(defn boom-teller-bullet [{:keys [bullet invaders] :as fleet}]
   (let [{:keys [x y]} bullet]
-    (or (when-let [[rown coln] (invader-at? fleet)]
+    (or (when-let [[rown coln] (invader-at fleet x y)]
           (-> fleet
               (assoc-in [:esposion] {:rown rown :coln coln :boom-level 1})
               (assoc-in [:invaders rown coln] false)
               (dissoc :bullet)
-              ((fn [x] (prn 'TELLER x) x))
               ))
         fleet)))
+
+(defn boom-teller-ship [{:keys [ship invaders] :as fleet}]
+  (let [{:keys [x]} ship
+        y draw/the-ship-posish]
+    (or (when-let [[rown coln] (or (invader-at fleet (+ x 18) y)
+                                   (invader-at fleet (+ x 9) (+ y 13))
+                                   (invader-at fleet (+ x 27) (+ y 13)))]
+          (make-fleet))
+        fleet)))
+
+(def boom-teller (comp boom-teller-bullet boom-teller-ship))
 
 (defn big-boom [fleet]
   (or (when-let [ex (:esposion fleet)]
@@ -290,7 +292,8 @@
   (-> {:invaders [[true true] [true true]]
        :offsets {:x 1 :y 0}
        :bullet {:x 20 :y 20}}
-      (boom-teller)
+      (invader-at 2 2)
+      ;(boom-teller-bullet)
       ;; (big-boom)
       ;; (big-boom)
       ;; (big-boom)
