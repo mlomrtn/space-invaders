@@ -265,6 +265,16 @@
 (defn stop! [] (swap! the-stoplight (constantly false)))
 (defn start! [] (swap! the-stoplight (constantly true)))
 
+(defn Main-thing []
+  (keys/handle!) (start!) (main-loop!))
+
+(defn Stop-thing []
+  (keys/remove!) (stop!))
+
+
+(Main-thing)
+
+
 (comment
   ;; 1. C-x C-e the next line, it will execute in emacs lisp and start clojure
   ;; (cider-jack-in-cljs '(:cljs-repl-type browser))
@@ -299,3 +309,5 @@
       ;; (big-boom)
       )
   )
+
+

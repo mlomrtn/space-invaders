@@ -2,7 +2,7 @@ repl:
 	clj --main cljs.main --compile space-invaders.core --repl
 
 prod:
-	clj -m cljs.main --optimizations advanced -c space-invaders.core
+	clj -M -m cljs.main --optimizations advanced -c space-invaders.core
 
 update:
 	clj -X:deps find-versions :lib org.clojure/clojurescript
