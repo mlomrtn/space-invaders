@@ -231,7 +231,7 @@
     fleet
     ))
 
-(def move-life (comp move-invaders v-move bullet-move big-boom boom-teller))
+(def move-life (comp move-invaders v-move bullet-move big-boom boom-teller win-teller))
 
 (defn new-bullet [fleet]
   {:x (get-in fleet [:ship :x])
@@ -281,7 +281,7 @@
   (keys/remove!) (stop!))
 
 
-;; (Main-thing)
+(Main-thing)
 
 
 (comment

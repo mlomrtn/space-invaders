@@ -46,7 +46,7 @@
   (let [[x y] (rown-coln-x-y row col offsets)]
     (set! (. *stage* -fillStyle) "#000000")
     (doto *stage*
-      (.fillRecta x y 35 30))))        
+      (.fillRect x y 35 30))))        
 
   
   
