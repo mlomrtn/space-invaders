@@ -73,6 +73,7 @@
   (->>
    fleet
    (first-invader)
+   (* draw/col-width)
    (+ (:x (:offsets fleet)))
    (>= 0)))
 
@@ -222,6 +223,14 @@
           (update-in fleet [:esposion :boom-level] inc)))
       fleet))
 
+(defn win-teller [fleet]
+  (if (every? (fn [row]
+                (every? false? row))
+              (:invaders fleet))
+    (make-fleet)
+    fleet
+    ))
+
 (def move-life (comp move-invaders v-move bullet-move big-boom boom-teller))
 
 (defn new-bullet [fleet]
@@ -272,7 +281,7 @@
   (keys/remove!) (stop!))
 
 
-(Main-thing)
+;; (Main-thing)
 
 
 (comment
@@ -299,6 +308,10 @@
                 :offsets {:x 1 :y 0}
                 :bullet {:x 20 :y 20}})
 
+  (draw/invader {:x 0 :y 0} 0 2)
+  (draw/uninvader {:x 0 :y 0} 0 1)
+      
+  
   (-> {:invaders [[true true] [true true]]
        :offsets {:x 1 :y 0}
        :bullet {:x 20 :y 20}}

@@ -14,10 +14,10 @@
        y (+ y (:y offsets))]
    [x y]))
 
-(defn invader* [color offsets row col]
+(defn invader [offsets row col]
   (let [[x y] (rown-coln-x-y row col offsets)]
            
-    (set! (. *stage* -fillStyle) color)
+    (set! (. *stage* -fillStyle) "#CCFF33")
     (doto *stage*
       (.fillRect (+ x 5) y 20 5)        ; head
       (.fillRect x (+ y 5) 30 15)       ; body
@@ -42,8 +42,14 @@
     ;; last tentacle is off by one, so manually scootch the gap out
     (.fillRect *stage* (+ x (* 4 5) 5) (+ y 20) 5 10)))
 
-(def invader (partial invader* "#CCFF33"))
-(def uninvader (partial invader* "black"))
+(defn uninvader [offsets row col]
+  (let [[x y] (rown-coln-x-y row col offsets)]
+    (set! (. *stage* -fillStyle) "#000000")
+    (doto *stage*
+      (.fillRecta x y 35 30))))        
+
+  
+  
 
 (defn rect [ox oy x y wd ht]
   (.fillRect *stage* (+ ox x) (+ oy y) wd ht))
